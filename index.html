@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Páginas Wiki - Vocal Synth Brasil</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Flaticon UIcons -->
+    <link rel='stylesheet'
+        href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+    <link rel='stylesheet'
+        href='https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fi fi-sr-microphone-alt"></i>
+                <h1>Gerador de Páginas Wiki</h1>
+                <span class="subtitle">Vocal Synth Brasil</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-dark-mode" onclick="toggleDarkMode()" title="Alternar modo escuro">
+                    <i class="fi fi-rr-moon"></i>
+                </button>
+                <button class="btn btn-secondary" onclick="limparTudo()">
+                    <i class="fi fi-rr-trash"></i> Limpar
+                </button>
+                <button class="btn btn-primary" onclick="gerarCodigo()">
+                    <i class="fi fi-rr-sparkles"></i> Gerar Código
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Import Section -->
+    <section class="import-section">
+        <div class="import-container">
+            <div class="import-box">
+                <i class="fi fi-rr-link-alt"></i>
+                <input type="text" id="importUrl"
+                    placeholder="Cole o link da wiki para importar (ex: https://vsynthbr.fandom.com/pt-br/wiki/VIICTOR)">
+                <button class="btn btn-import" onclick="importarPagina()">
+                    <i class="fi fi-rr-download"></i> Importar
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab active" data-tab="infobox">
+                <i class="fi fi-rr-id-card-clip-alt"></i>
+                <span>Infobox</span>
+            </button>
+            <button class="tab" data-tab="conteudo">
+                <i class="fi fi-rr-document"></i>
+                <span>Conteúdo</span>
+            </button>
+            <button class="tab" data-tab="bancos">
+                <i class="fi fi-rr-music-alt"></i>
+                <span>Bancos de Voz</span>
+            </button>
+            <button class="tab" data-tab="termos">
+                <i class="fi fi-rr-balance-scale-right"></i>
+                <span>Termos</span>
+            </button>
+            <button class="tab" data-tab="exemplos">
+                <i class="fi fi-rr-headphones"></i>
+                <span>Exemplos</span>
+            </button>
+            <button class="tab" data-tab="galeria">
+                <i class="fi fi-rr-picture"></i>
+                <span>Galeria</span>
+            </button>
+            <button class="tab" data-tab="extras">
+                <i class="fi fi-rr-apps-add"></i>
+                <span>Extras</span>
+            </button>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="content-wrapper">
+            <!-- Forms Panel -->
+            <div class="forms-panel">
+                <!-- Infobox Section -->
+                <section id="infobox" class="form-section active">
+                    <h2 class="section-title"><i class="fi fi-rr-id-card-clip-alt"></i> Informações Básicas (Infobox)
+                    </h2>
+
+                    <div class="form-group">
+                        <label for="nome"><i class="fi fi-rr-user"></i> Nome do Personagem *</label>
+                        <input type="text" id="nome" placeholder="Ex: VIICTOR" oninput="atualizarPreview()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nomeJapones"><i class="fi fi-rr-language"></i> Nome em Japonês</label>
+                        <input type="text" id="nomeJapones" placeholder="Ex: ヴィートル" oninput="atualizarPreview()">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fi fi-rr-picture"></i> Imagens</label>
+                        <div id="imagensContainer">
+                            <div class="imagem-item">
+                                <input type="text" class="imagem-arquivo"
+                                    placeholder="Nome do arquivo (ex: VIICTOR.png)" oninput="atualizarPreview()">
+                                <input type="text" class="imagem-label" placeholder="Label (ex: UTAU)"
+                                    oninput="atualizarPreview()">
+                                <button class="btn-icon btn-remove" onclick="removerItem(this)" title="Remover"><i
+                                        class="fi fi-rr-cross-small"></i></button>
+                            </div>
+                        </div>
+                        <button class="btn btn-add" onclick="adicionarImagem()"><i class="fi fi-rr-plus"></i> Adicionar
+                            Imagem</button>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="genero"><i class="fi fi-rr-venus-mars"></i> Gênero</label>
+                            <select id="genero" onchange="atualizarPreview()">
+                                <option value="">Selecione...</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Feminino">Feminino</option>
+                                <option value="Não-binário">Não-binário</option>
+                                <option value="Desconhecido">Desconhecido</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="idade"><i class="fi fi-rr-cake-birthday"></i> Idade</label>
+                            <input type="text" id="idade" placeholder="Ex: 18 anos" oninput="atualizarPreview()">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="altura"><i class="fi fi-rr-ruler-vertical"></i> Altura</label>
+                            <input type="text" id="altura" placeholder="Ex: 1,76m" oninput="atualizarPreview()">
+                        </div>
+                        <div class="form-group">
+                            <label for="peso"><i class="fi fi-rr-scale"></i> Peso</label>
+                            <input type="text" id="peso" placeholder="Ex: 64kg" oninput="atualizarPreview()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="aniversario"><i class="fi fi-rr-calendar"></i> Aniversário</label>
+                        <input type="text" id="aniversario" placeholder="Ex: 15 de julho" oninput="atualizarPreview()">
+                    </div>
+
+                    <h3 class="subsection-title"><i class="fi fi-rr-box-open"></i> Informações do Produto</h3>
+
+                    <div class="form-group">
+                        <label for="lancamento"><i class="fi fi-rr-rocket-lunch"></i> Lançamento Inicial *</label>
+                        <input type="text" id="lancamento" placeholder="Ex: 15 de julho de 2013"
+                            oninput="atualizarPreview()">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="criador"><i class="fi fi-rr-user-pen"></i> Criador *</label>
+                            <input type="text" id="criador" placeholder="Nome do criador" oninput="atualizarPreview()">
+                        </div>
+                        <div class="form-group">
+                            <label for="voicer"><i class="fi fi-rr-microphone"></i> Voicer *</label>
+                            <input type="text" id="voicer" placeholder="Nome do voicer" oninput="atualizarPreview()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ilustradores"><i class="fi fi-rr-paint-brush"></i> Ilustradores</label>
+                        <input type="text" id="ilustradores" placeholder="Nomes separados por vírgula"
+                            oninput="atualizarPreview()">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="grupo"><i class="fi fi-rr-users"></i> Grupo</label>
+                            <input type="text" id="grupo" placeholder="Ex: POMAR LTS" oninput="atualizarPreview()">
+                        </div>
+                        <div class="form-group">
+                            <label for="codigo"><i class="fi fi-rr-hastag"></i> Código</label>
+                            <input type="text" id="codigo" placeholder="Ex: Rx01" oninput="atualizarPreview()">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="status"><i class="fi fi-rr-signal-alt"></i> Status</label>
+                            <select id="status" onchange="atualizarPreview()">
+                                <option value="">Selecione...</option>
+                                <option value="Ativo">Ativo</option>
+                                <option value="Descontinuado">Descontinuado</option>
+                                <option value="Privado">Privado</option>
+                                <option value="Privado temporariamente">Privado temporariamente</option>
+                                <option value="Em desenvolvimento">Em desenvolvimento</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tema"><i class="fi fi-rr-palette"></i> Tema de Cor *</label>
+                            <select id="tema" onchange="atualizarPreview()">
+                                <option value="">Selecione...</option>
+                                <option value="viictor">viictor (verde/rosa)</option>
+                                <option value="purple5">purple5 (roxo)</option>
+                                <option value="blue">blue (azul)</option>
+                                <option value="pink">pink (rosa)</option>
+                                <option value="red">red (vermelho)</option>
+                                <option value="green">green (verde)</option>
+                                <option value="orange">orange (laranja)</option>
+                                <option value="yellow">yellow (amarelo)</option>
+                                <option value="cyan">cyan (ciano)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="website"><i class="fi fi-rr-globe"></i> Website/Redes Sociais</label>
+                        <input type="text" id="website" placeholder="URL ou nome da rede" oninput="atualizarPreview()">
+                    </div>
+                </section>
+
+                <!-- Conteúdo Section -->
+                <section id="conteudo" class="form-section">
+                    <h2 class="section-title"><i class="fi fi-rr-document"></i> Conteúdo da Página</h2>
+
+                    <div class="form-group">
+                        <label for="introducao"><i class="fi fi-rr-align-left"></i> Introdução *</label>
+                        <textarea id="introducao" rows="4" placeholder="Texto introdutório sobre o banco de voz..."
+                            oninput="atualizarPreview()"></textarea>
+                        <span class="hint">Será exibido logo após a infobox</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="historia"><i class="fi fi-rr-book-alt"></i> História</label>
+                        <textarea id="historia" rows="4" placeholder="Backstory do personagem (opcional)..."
+                            oninput="atualizarPreview()"></textarea>
+                    </div>
+
+                    <h3 class="subsection-title"><i class="fi fi-rr-lightbulb-on"></i> Conceito</h3>
+
+                    <div class="form-group">
+                        <label for="detalhesPersonagem"><i class="fi fi-rr-list"></i> Detalhes do Personagem</label>
+                        <textarea id="detalhesPersonagem" rows="4"
+                            placeholder="Gosta de, não gosta de, personalidade, voz..."
+                            oninput="atualizarPreview()"></textarea>
+                        <span class="hint">Use * para criar bullets. Ex: *'''Gosta de:''' música</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="etimologia"><i class="fi fi-rr-book-open-reader"></i> Etimologia</label>
+                        <textarea id="etimologia" rows="2" placeholder="Significado do nome..."
+                            oninput="atualizarPreview()"></textarea>
+                    </div>
+
+                    <h3 class="subsection-title"><i class="fi fi-rr-portrait"></i> Aparência</h3>
+
+                    <div class="form-group">
+                        <label for="descricaoFisica"><i class="fi fi-rr-user"></i> Descrição Física</label>
+                        <textarea id="descricaoFisica" rows="3" placeholder="Cabelos, olhos, pele..."
+                            oninput="atualizarPreview()"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vestimentas"><i class="fi fi-rr-shirt-long-sleeve"></i> Vestimentas</label>
+                        <textarea id="vestimentas" rows="3" placeholder="Roupas que o personagem usa..."
+                            oninput="atualizarPreview()"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="acessorios"><i class="fi fi-rr-glasses"></i> Acessórios</label>
+                        <textarea id="acessorios" rows="2" placeholder="Itens/acessórios que carrega (ou 'Nenhum')..."
+                            oninput="atualizarPreview()"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="relacoes"><i class="fi fi-rr-users"></i> Relações</label>
+                        <textarea id="relacoes" rows="3" placeholder="Relações com outros personagens..."
+                            oninput="atualizarPreview()"></textarea>
+                    </div>
+                </section>
+
+                <!-- Bancos de Voz Section -->
+                <section id="bancos" class="form-section">
+                    <h2 class="section-title"><i class="fi fi-rr-music-alt"></i> Bancos de Voz</h2>
+
+                    <div class="form-group">
+                        <label for="descricaoProduto"><i class="fi fi-rr-info"></i> Descrição do Desenvolvimento</label>
+                        <textarea id="descricaoProduto" rows="3"
+                            placeholder="Texto sobre o desenvolvimento do banco (opcional)..."
+                            oninput="atualizarPreview()"></textarea>
+                    </div>
+
+                    <div id="bancosContainer">
+                        <!-- Bancos de voz serão adicionados aqui -->
+                    </div>
+
+                    <button class="btn btn-add btn-large" onclick="adicionarBanco()">
+                        <i class="fi fi-rr-plus"></i> Adicionar Banco de Voz
+                    </button>
+                </section>
+
+                <!-- Termos de Uso Section -->
+                <section id="termos" class="form-section">
+                    <h2 class="section-title"><i class="fi fi-rr-balance-scale-right"></i> Termos de Uso</h2>
+
+                    <div class="form-group">
+                        <label for="r18"><i class="fi fi-rr-age-restriction-eighteen"></i> Conteúdo R-18
+                            permitido?</label>
+                        <select id="r18" onchange="atualizarPreview()">
+                            <option value="">Selecione...</option>
+                            <option value="Proibido">Proibido</option>
+                            <option value="Permitido">Permitido</option>
+                            <option value="Requer permissão do criador">Requer permissão do criador</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comercialVB"><i class="fi fi-rr-shop"></i> Uso comercial do banco de voz
+                            permitido?</label>
+                        <select id="comercialVB" onchange="atualizarPreview()">
+                            <option value="">Selecione...</option>
+                            <option value="Proibido">Proibido</option>
+                            <option value="Permitido">Permitido</option>
+                            <option value="Requer permissão do criador">Requer permissão do criador</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comercialPersonagem"><i class="fi fi-rr-copyright"></i> Uso comercial do personagem
+                            permitido?</label>
+                        <select id="comercialPersonagem" onchange="atualizarPreview()">
+                            <option value="">Selecione...</option>
+                            <option value="Proibido">Proibido</option>
+                            <option value="Permitido">Permitido</option>
+                            <option value="Requer permissão do criador">Requer permissão do criador</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="derivados"><i class="fi fi-rr-share"></i> Esses termos aplicam-se a
+                            personagens/vozes derivados?</label>
+                        <select id="derivados" onchange="atualizarPreview()">
+                            <option value="">Selecione...</option>
+                            <option value="Derivados de qualquer tipo são proibidos">Derivados proibidos</option>
+                            <option value="Sim">Sim</option>
+                            <option value="Sim, porém derivados requerem a permissão do criador para serem feitos">Sim,
+                                com permissão</option>
+                            <option value="Não">Não</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="termosAdicionais"><i class="fi fi-rr-document-signed"></i> Termos Adicionais</label>
+                        <textarea id="termosAdicionais" rows="2" placeholder="Termos extras ou 'Não há'..."
+                            oninput="atualizarPreview()"></textarea>
+                    </div>
+                </section>
+
+                <!-- Exemplos de Uso Section -->
+                <section id="exemplos" class="form-section">
+                    <h2 class="section-title"><i class="fi fi-rr-headphones"></i> Exemplos de Uso</h2>
+                    <p class="section-description">Adicione covers ou músicas originais que usam este banco de voz.</p>
+
+                    <div id="exemplosContainer">
+                        <!-- Exemplos serão adicionados aqui -->
+                    </div>
+
+                    <button class="btn btn-add btn-large" onclick="adicionarExemplo()">
+                        <i class="fi fi-rr-plus"></i> Adicionar Música
+                    </button>
+                </section>
+
+                <!-- Galeria Section -->
+                <section id="galeria" class="form-section">
+                    <h2 class="section-title"><i class="fi fi-rr-picture"></i> Galeria</h2>
+
+                    <div class="galeria-categorias">
+                        <div class="galeria-categoria">
+                            <h3><i class="fi fi-rr-star"></i> Artes Oficiais</h3>
+                            <div id="galeriaOficialContainer"></div>
+                            <button class="btn btn-add" onclick="adicionarImgGaleria('oficial')"><i
+                                    class="fi fi-rr-plus"></i> Adicionar</button>
+                        </div>
+
+                        <div class="galeria-categoria">
+                            <h3><i class="fi fi-rr-disc"></i> Capas de Covers/Originais</h3>
+                            <div id="galeriaCoversContainer"></div>
+                            <button class="btn btn-add" onclick="adicionarImgGaleria('covers')"><i
+                                    class="fi fi-rr-plus"></i> Adicionar</button>
+                        </div>
+
+                        <div class="galeria-categoria">
+                            <h3><i class="fi fi-rr-blueprint"></i> Reference Sheets e Logotipos</h3>
+                            <div id="galeriaRefsContainer"></div>
+                            <button class="btn btn-add" onclick="adicionarImgGaleria('refs')"><i
+                                    class="fi fi-rr-plus"></i> Adicionar</button>
+                        </div>
+
+                        <div class="galeria-categoria">
+                            <h3><i class="fi fi-rr-images"></i> Artes Extras</h3>
+                            <div id="galeriaExtrasContainer"></div>
+                            <button class="btn btn-add" onclick="adicionarImgGaleria('extras')"><i
+                                    class="fi fi-rr-plus"></i> Adicionar</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Extras Section -->
+                <section id="extras" class="form-section">
+                    <h2 class="section-title"><i class="fi fi-rr-apps-add"></i> Extras</h2>
+
+                    <h3 class="subsection-title"><i class="fi fi-rr-download"></i> Downloads</h3>
+                    <div class="form-group">
+                        <label><i class="fi fi-rr-link-alt"></i> Links de Download</label>
+                        <div id="downloadsContainer"></div>
+                        <button class="btn btn-add" onclick="adicionarDownload()"><i class="fi fi-rr-plus"></i>
+                            Adicionar Link</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="downloadNota"><i class="fi fi-rr-comment-info"></i> Nota sobre Downloads</label>
+                        <textarea id="downloadNota" rows="2"
+                            placeholder="Ex: Desde o dia X, os bancos encontram-se privados..."
+                            oninput="atualizarPreview()"></textarea>
+                    </div>
+
+                    <h3 class="subsection-title"><i class="fi fi-rr-bulb"></i> Curiosidades</h3>
+                    <div id="curiosidadesContainer"></div>
+                    <button class="btn btn-add" onclick="adicionarCuriosidade()"><i class="fi fi-rr-plus"></i> Adicionar
+                        Curiosidade</button>
+
+                    <h3 class="subsection-title"><i class="fi fi-rr-link-alt"></i> Links Externos</h3>
+                    <div id="linksExternosContainer"></div>
+                    <button class="btn btn-add" onclick="adicionarLinkExterno()"><i class="fi fi-rr-plus"></i> Adicionar
+                        Link</button>
+
+                    <h3 class="subsection-title"><i class="fi fi-rr-tags"></i> Categorias</h3>
+                    <div class="categorias-grid">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Bancos de voz" onchange="atualizarPreview()"> Bancos de voz
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="UTAU" onchange="atualizarPreview()"> UTAU
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="OpenUtau" onchange="atualizarPreview()"> OpenUtau
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="DeepVocal" onchange="atualizarPreview()"> DeepVocal
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="NIAONiao" onchange="atualizarPreview()"> NIAONiao
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="DiffSinger" onchange="atualizarPreview()"> DiffSinger
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="RVC" onchange="atualizarPreview()"> RVC
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="UTAUs do Brasil" onchange="atualizarPreview()"> UTAUs do
+                            Brasil
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Vocais masculinos" onchange="atualizarPreview()"> Vocais
+                            masculinos
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Vocais femininos" onchange="atualizarPreview()"> Vocais
+                            femininos
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Vocais neutros" onchange="atualizarPreview()"> Vocais neutros
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Vocais multilíngues" onchange="atualizarPreview()"> Vocais
+                            multilíngues
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Vocais japoneses" onchange="atualizarPreview()"> Vocais
+                            japoneses
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Vocais portugueses" onchange="atualizarPreview()"> Vocais
+                            portugueses
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Vocais chineses" onchange="atualizarPreview()"> Vocais
+                            chineses
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Vocais espanhóis" onchange="atualizarPreview()"> Vocais
+                            espanhóis
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Bancos de voz VCV" onchange="atualizarPreview()"> VCV
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Bancos de voz CVVC" onchange="atualizarPreview()"> CVVC
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Bancos de voz VCCV" onchange="atualizarPreview()"> VCCV
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Bancos de voz CV" onchange="atualizarPreview()"> CV
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Bancos de voz CVC" onchange="atualizarPreview()"> CVC
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="Bancos de voz CVVV" onchange="atualizarPreview()"> CVVV
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoriaCriador"><i class="fi fi-rr-user-pen"></i> Categoria do Criador</label>
+                        <input type="text" id="categoriaCriador" placeholder="Ex: Xiaop" oninput="atualizarPreview()">
+                        <span class="hint">Nome para a categoria [[Categoria:NomeCriador]]</span>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="output-panel">
+                <div class="output-header">
+                    <h3><i class="fi fi-rr-code-simple"></i> Código Gerado</h3>
+                    <div class="output-actions">
+                        <button class="btn btn-theme" onclick="toggleCodeTheme()" title="Alternar tema claro/escuro">
+                            <i class="fi fi-rr-sun"></i>
+                        </button>
+                        <button class="btn btn-copy" onclick="copiarCodigo()">
+                            <i class="fi fi-rr-copy"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+                <div class="output-content">
+                    <textarea id="codigoOutput"
+                        placeholder="Preencha os campos para ver o código aqui. Você pode editar diretamente!"
+                        oninput="sincronizarDoEditor()"></textarea>
+                </div>
+                <div class="output-footer">
+                    <span class="hint"><i class="fi fi-rr-info"></i> Edite o código diretamente ou use os formulários.
+                        Cole no Editor Fonte da wiki.</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-links">
+            <a href="https://vsynthbr.fandom.com/pt-br/wiki/Vocal_Synth_Brasil_Wiki" target="_blank"><i
+                    class="fi fi-rr-globe"></i> Wiki VSB</a>
+            <span>•</span>
+            <a href="https://vsynthbr.fandom.com/pt-br/wiki/Template_Bancos_de_Voz" target="_blank"><i
+                    class="fi fi-rr-document"></i> Template</a>
+            <span>•</span>
+            <a href="https://vsynthbr.fandom.com/pt-br/wiki/Especial:Carregar_arquivo" target="_blank"><i
+                    class="fi fi-rr-upload"></i> Upload</a>
+        </p>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Importando página...</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
