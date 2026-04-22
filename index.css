@@ -1,18 +1,13 @@
-/*
- * ===== FLAT BRUTALIST THEME =====
- * Extreme simplicity, sharp lines, zero glow, zero gradients.
- */
-
 :root {
-    --bg-main: #1c1c21;    /* Softer Dark Charcoal */
+    --bg-main: #1c1c21;
     --bg-secondary: #25252b;
     --bg-panel: #2d2d35;
     --bg-input: #1c1c21;
     --bg-hover: #3a3a45;
     
-    --accent-primary: #A1C6EA; /* Light Pastel Blue */
-    --accent-secondary: #f0e68c; /* Khaki/Soft Yellow */
-    --accent-tertiary: #ffab91; /* Soft Coral */
+    --accent-primary: #A1C6EA; 
+    --accent-secondary: #f0e68c; 
+    --accent-tertiary: #ffab91; 
     
     --text-primary: #e0e0e6;
     --text-secondary: #a0a0b0;
@@ -55,7 +50,6 @@ body {
     line-height: 1.5;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
     width: 12px;
     height: 12px;
@@ -74,7 +68,6 @@ body {
     background: var(--accent-primary);
 }
 
-/* Header */
 .header {
     background: var(--bg-panel);
     border-bottom: 2px solid var(--border-color);
@@ -122,7 +115,6 @@ body {
     gap: 0.5rem;
 }
 
-/* Buttons */
 .btn {
     border: 2px solid var(--border-color);
     background: var(--bg-secondary);
@@ -159,7 +151,6 @@ body {
     border-color: #ffffff;
 }
 
-/* Import Section */
 .import-section {
     padding: 1rem 0;
     background: var(--bg-secondary);
@@ -192,7 +183,6 @@ body {
     border-left: 2px solid var(--border-color);
 }
 
-/* Help Section */
 .help-section {
     background: var(--accent-secondary);
     border-bottom: 2px solid var(--border-color);
@@ -291,7 +281,6 @@ body {
     text-align: center;
 }
 
-/* Modal Lightbox */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -339,7 +328,6 @@ body {
     width: 100%;
 }
 
-/* Tabs */
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -379,7 +367,6 @@ body {
     color: #000;
 }
 
-/* Content Layout */
 .content-wrapper {
     display: grid;
     grid-template-columns: 1fr 400px;
@@ -420,7 +407,6 @@ body {
     text-transform: uppercase;
 }
 
-/* Form Elements */
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -431,7 +417,6 @@ body {
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: var(--text-primary);
-    /* Higher contrast for labels */
     text-transform: uppercase;
 }
 
@@ -443,7 +428,6 @@ body {
     border: 2px solid var(--border-color);
     padding: 0.75rem;
     color: #ffffff !important;
-    /* Force white text in dark mode */
     font-family: inherit;
     outline: none;
 }
@@ -452,7 +436,6 @@ body {
 .light-mode .form-group select,
 .light-mode .form-group textarea {
     color: #000000 !important;
-    /* Force black text in light mode */
     background: #ffffff;
 }
 
@@ -495,7 +478,6 @@ body {
     gap: 1rem;
 }
 
-/* Cards & Items */
 .banco-card,
 .exemplo-card,
 .imagem-item,
@@ -514,7 +496,6 @@ body {
     border-color: var(--accent-primary);
 }
 
-/* Design Preview Section */
 .design-preview {
     background: var(--bg-panel);
     border: 2px solid var(--border-color);
@@ -595,7 +576,6 @@ body {
     font-family: inherit;
 }
 
-/* Output Panel */
 .output-panel {
     border: 2px solid var(--border-color);
     height: calc(100vh - 160px);
@@ -639,7 +619,6 @@ body {
     text-align: center;
 }
 
-/* Toast */
 .toast {
     position: fixed;
     bottom: 2rem;
@@ -658,7 +637,6 @@ body {
     display: block;
 }
 
-/* Loading */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -680,7 +658,6 @@ body {
     border-top-color: var(--accent-primary);
 }
 
-/* Resp */
 @media (max-width: 1000px) {
     .content-wrapper {
         grid-template-columns: 1fr;

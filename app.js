@@ -1,8 +1,3 @@
-// ===== Wiki Page Generator - Vocal Synth Brasil =====
-// Version 3.0 - Premium Polish "Midnight Synth"
-
-// ===== Sound Effects =====
-// Only use save.mp3 as it's the only one confirmed in files
 const saveSound = new Audio('save.mp3');
 
 function playSave() {
@@ -10,28 +5,25 @@ function playSave() {
     saveSound.play().catch(() => { });
 }
 
-// ===== Toggle Tutorial Panel =====
 function toggleTutorial() {
     const panel = document.getElementById('tutorialPanel');
     panel.classList.toggle('show');
 }
 
-// ===== Image Modal (Lightbox) =====
 function openModal(src) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
     modalImg.src = src;
     modal.classList.add('show');
-    document.body.style.overflow = 'hidden'; // Prevent scroll
+    document.body.style.overflow = 'hidden'; 
 }
 
 function closeModal() {
     const modal = document.getElementById('imageModal');
     modal.classList.remove('show');
-    document.body.style.overflow = 'auto'; // Restore scroll
+    document.body.style.overflow = 'auto'; 
 }
 
-// ===== Code Theme Toggle =====
 let isLightTheme = false;
 
 function toggleCodeTheme() {
@@ -41,25 +33,20 @@ function toggleCodeTheme() {
     isLightTheme = !isLightTheme;
     outputContent.classList.toggle('light-theme', isLightTheme);
 
-    // Toggle icon
     themeBtn.className = isLightTheme ? 'fi fi-rr-moon' : 'fi fi-rr-sun';
 }
 
-// ===== Dark Mode - Permanent Default =====
 document.documentElement.classList.remove('light-mode');
 localStorage.setItem('darkMode', 'true');
 
-// ===== Tab Navigation - Snap Instant =====
 document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
         const currentActive = document.querySelector('.tab.active');
         if (currentActive === tab) return;
 
-        // Remove active from all tabs
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
 
-        // Instant switch sections
         const targetId = tab.dataset.tab;
         document.querySelectorAll('.form-section').forEach(s => {
             s.classList.remove('active');
@@ -68,7 +55,6 @@ document.querySelectorAll('.tab').forEach(tab => {
     });
 });
 
-// ===== Toast Notification =====
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     const icon = type === 'success' ? 'fi-rr-check' : 'fi-rr-triangle-warning';
@@ -81,13 +67,11 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// ===== Loading Overlay =====
 function showLoading(show = true) {
     const overlay = document.getElementById('loadingOverlay');
     overlay.classList.toggle('active', show);
 }
 
-// ===== Importar Página da Wiki =====
 async function importarPagina() {
     const urlInput = document.getElementById('importUrl').value.trim();
 
@@ -96,7 +80,6 @@ async function importarPagina() {
         return;
     }
 
-    // Extract page name from URL
     let pageName = '';
     try {
         const url = new URL(urlInput);
@@ -105,7 +88,6 @@ async function importarPagina() {
             pageName = decodeURIComponent(pathParts[1]);
         }
     } catch (e) {
-        // Maybe it's just the page name
         pageName = urlInput;
     }
 
@@ -117,7 +99,6 @@ async function importarPagina() {
     showLoading(true);
 
     try {
-        // Use Fandom API to get page content
         const apiUrl = `https://vsynthbr.fandom.com/pt-br/api.php?action=query&titles=${encodeURIComponent(pageName)}&prop=revisions&rvprop=content&format=json&origin=*`;
 
         const response = await fetch(apiUrl);
@@ -134,12 +115,10 @@ async function importarPagina() {
 
         const content = pages[pageId].revisions[0]['*'];
 
-        // Put content in the code editor
         document.getElementById('codigoOutput').value = content;
 
         playSave();
         
-        // Parse and fill forms
         preencherFormularios(content);
         
         showToast('Página importada e campos preenchidos!', 'success');
@@ -152,14 +131,10 @@ async function importarPagina() {
     showLoading(false);
 }
 
-// ===== Parser: Wiki Content to Form Fields =====
 function clearExistingItems() {
-    // Clear images
     document.getElementById('imagensContainer').innerHTML = '';
-    // Clear voice banks
     document.getElementById('bancosContainer').innerHTML = '';
     bancoCounter = 0;
-    // Clear examples
     document.getElementById('exemplosContainer').innerHTML = '';
     exemploCounter = 0;
 }
@@ -169,14 +144,12 @@ function preencherFormularios(content) {
 
     clearExistingItems();
 
-    // 1. Basic Infobox Mapping (using regex for standard wiki keys)
     const extract = (key) => {
         const regex = new RegExp(`\\|${key}\\s*=\\s*([^\\|\\}\\n]+)`, 'i');
         const match = content.match(regex);
         return match ? match[1].trim() : '';
     };
 
-    // Name and Japanese Name
     const rawName = extract('name');
     if (rawName) {
         const parts = rawName.split(/<br\s*\/?>|<small>/i);
@@ -186,7 +159,6 @@ function preencherFormularios(content) {
         }
     }
 
-    // Direct Mapping
     const mapping = {
         'gênero': 'genero',
         'idade': 'idade',
@@ -212,14 +184,12 @@ function preencherFormularios(content) {
         }
     }
 
-    // 2. Gallery Parsing (inside Infobox)
     const galleryMatch = content.match(/image\s*=\s*<gallery>([\s\S]*?)<\/gallery>/i);
     if (galleryMatch) {
         const lines = galleryMatch[1].split('\n');
         lines.forEach(line => {
             const parts = line.trim().split('|');
             if (parts[0] && parts[0].includes('.')) {
-                // It looks like an image file
                 const container = document.getElementById('imagensContainer');
                 const item = document.createElement('div');
                 item.className = 'imagem-item';
@@ -233,13 +203,9 @@ function preencherFormularios(content) {
         });
     }
 
-    // Ensure preview is updated
     atualizarPreview();
 }
 
-// ===== Dynamic Item Management =====
-
-// Remove item (generic)
 function removerItem(button) {
     const item = button.closest('.imagem-item, .banco-card, .exemplo-card, .galeria-item, .download-item, .curiosidade-item, .link-item');
     item.style.animation = 'cardSlideOut 0.3s ease';
@@ -249,7 +215,6 @@ function removerItem(button) {
     }, 250);
 }
 
-// Add CSS for slide out animation
 const style = document.createElement('style');
 style.textContent = `
     @keyframes cardSlideOut {
@@ -261,7 +226,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Add image to infobox gallery
 function adicionarImagem() {
     const container = document.getElementById('imagensContainer');
     const item = document.createElement('div');
@@ -274,10 +238,8 @@ function adicionarImagem() {
     container.appendChild(item);
 }
 
-// Bank counter for unique IDs
 let bancoCounter = 0;
 
-// Add voice bank
 function adicionarBanco() {
     bancoCounter++;
     const container = document.getElementById('bancosContainer');
@@ -367,10 +329,8 @@ function adicionarBanco() {
     container.appendChild(card);
 }
 
-// Example counter
 let exemploCounter = 0;
 
-// Add music example
 function adicionarExemplo() {
     exemploCounter++;
     const container = document.getElementById('exemplosContainer');
@@ -438,7 +398,6 @@ function adicionarExemplo() {
     container.appendChild(card);
 }
 
-// Add gallery image
 function adicionarImgGaleria(tipo) {
     const containerId = {
         'oficial': 'galeriaOficialContainer',
@@ -459,7 +418,6 @@ function adicionarImgGaleria(tipo) {
     container.appendChild(item);
 }
 
-// Add download link
 function adicionarDownload() {
     const container = document.getElementById('downloadsContainer');
     const item = document.createElement('div');
@@ -481,7 +439,6 @@ function adicionarDownload() {
     container.appendChild(item);
 }
 
-// Toggle custom host input
 function toggleOutroHost(select) {
     const item = select.closest('.download-item');
     const outroInput = item.querySelector('.download-host-outro');
@@ -495,7 +452,6 @@ function toggleOutroHost(select) {
     atualizarPreview();
 }
 
-// Add curiosity
 function adicionarCuriosidade() {
     const container = document.getElementById('curiosidadesContainer');
     const item = document.createElement('div');
@@ -507,7 +463,6 @@ function adicionarCuriosidade() {
     container.appendChild(item);
 }
 
-// Add external link
 function adicionarLinkExterno() {
     const container = document.getElementById('linksExternosContainer');
     const item = document.createElement('div');
@@ -520,17 +475,14 @@ function adicionarLinkExterno() {
     container.appendChild(item);
 }
 
-// ===== Preview em Tempo Real =====
 let previewTimeout = null;
 
 function atualizarPreview() {
-    // Atualiza o design principal
     atualizarDesignPreview();
 
-    // Debounce para não gerar código a cada tecla
     clearTimeout(previewTimeout);
     previewTimeout = setTimeout(() => {
-        gerarCodigo(false); // false = não mostrar toast
+        gerarCodigo(false); 
     }, 300);
 }
 
@@ -543,10 +495,8 @@ function atualizarDesignPreview() {
     const fileName = firstImgInput.value.trim();
     
     if (fileName && fileName.length > 3) {
-        // Construct Fandom Direct URL
         const imgUrl = `https://vsynthbr.fandom.com/pt-br/wiki/Especial:Redirect/file/${encodeURIComponent(fileName)}`;
         
-        // Show loading or just try to set the image
         designBody.innerHTML = `
             <img src="${imgUrl}" alt="Design Principal" 
                  onerror="handleDesignError(this)" 
@@ -575,17 +525,13 @@ function handleDesignError(img) {
 }
 
 function handleDesignLoad(img) {
-    // Image loaded successfully
     img.style.display = 'block';
 }
 
-// ===== Sincronizar do Editor =====
-// Quando o usuário edita o código diretamente, atualiza os campos
 let syncTimeout = null;
 let isSyncing = false;
 
 function sincronizarDoEditor() {
-    // Debounce para não parsear a cada tecla
     clearTimeout(syncTimeout);
     syncTimeout = setTimeout(() => {
         parsearEPreencher();
@@ -598,7 +544,6 @@ function parsearEPreencher() {
 
     const codigo = document.getElementById('codigoOutput').value;
 
-    // Parse name
     const nameMatch = codigo.match(/\|name=([^<\n]+)/);
     if (nameMatch) {
         const nomeField = document.getElementById('nome');
@@ -607,7 +552,6 @@ function parsearEPreencher() {
         }
     }
 
-    // Parse Japanese name
     const jpMatch = codigo.match(/\|name=[^<]*<small>([^<]+)<\/small>/);
     if (jpMatch) {
         const jpField = document.getElementById('nomeJapones');
@@ -616,7 +560,6 @@ function parsearEPreencher() {
         }
     }
 
-    // Parse basic fields with pipe syntax
     const fieldMappings = {
         'gênero': 'genero',
         'idade': 'idade',
@@ -641,7 +584,6 @@ function parsearEPreencher() {
         if (match && element) {
             const value = match[1].trim().replace(/<br>/g, '');
             if (element.tagName === 'SELECT') {
-                // For select, try to find matching option
                 const options = Array.from(element.options);
                 const matchingOption = options.find(opt =>
                     opt.value.toLowerCase() === value.toLowerCase() ||
@@ -659,18 +601,13 @@ function parsearEPreencher() {
     isSyncing = false;
 }
 
-// ===== Code Generation =====
-
 function gerarCodigo(mostrarToast = true) {
     let codigo = '';
 
-    // Get tema value (will be used as default for colors)
     const temaGlobal = document.getElementById('tema').value;
 
-    // ===== INFOBOX =====
     codigo += gerarInfobox(temaGlobal);
 
-    // ===== INTRODUÇÃO =====
     const introducao = document.getElementById('introducao').value.trim();
     if (introducao) {
         codigo += `\n\n\n'''${document.getElementById('nome').value}'''`;
@@ -680,40 +617,29 @@ function gerarCodigo(mostrarToast = true) {
         codigo += ` ${introducao}`;
     }
 
-    // ===== HISTÓRIA =====
     const historia = document.getElementById('historia').value.trim();
     if (historia) {
         codigo += `\n\n\n==História==\n${historia}`;
     }
 
-    // ===== CONCEITO =====
     codigo += gerarConceito();
 
-    // ===== INFORMAÇÕES DO PRODUTO =====
     codigo += gerarInformacoesProduto(temaGlobal);
 
-    // ===== TERMOS DE USO =====
     codigo += gerarTermosUso();
 
-    // ===== EXEMPLOS DE USO =====
     codigo += gerarExemplosUso(temaGlobal);
 
-    // ===== DOWNLOADS =====
     codigo += gerarDownloads();
 
-    // ===== CURIOSIDADES =====
     codigo += gerarCuriosidades();
 
-    // ===== GALERIA =====
     codigo += gerarGaleria();
 
-    // ===== LINKS EXTERNOS =====
     codigo += gerarLinksExternos();
 
-    // ===== CATEGORIAS =====
     codigo += gerarCategorias();
 
-    // Display the code
     document.getElementById('codigoOutput').value = codigo;
 
     if (mostrarToast) {
@@ -725,14 +651,12 @@ function gerarCodigo(mostrarToast = true) {
 function gerarInfobox(tema) {
     let infobox = '{{Character_info\n';
 
-    // Name
     const nome = document.getElementById('nome').value;
     const nomeJapones = document.getElementById('nomeJapones').value;
     if (nomeJapones) {
         infobox += `  |name=${nome}<br><small>${nomeJapones}</small>\n`;
     }
 
-    // Images
     const imagens = document.querySelectorAll('#imagensContainer .imagem-item');
     if (imagens.length > 0) {
         const imgArray = [];
@@ -755,7 +679,6 @@ function gerarInfobox(tema) {
         }
     }
 
-    // Character info
     const genero = document.getElementById('genero').value;
     if (genero) infobox += `  |gênero=${genero}\n`;
 
@@ -773,7 +696,6 @@ function gerarInfobox(tema) {
 
     infobox += `  |-\n`;
 
-    // Product info
     const lancamento = document.getElementById('lancamento').value;
     if (lancamento) infobox += `  |lançamento_inicial=${lancamento}\n`;
 
@@ -807,7 +729,6 @@ function gerarInfobox(tema) {
 
     if (tema) infobox += `  |theme=${tema}\n`;
 
-    // Check if multiple illustrators
     if (ilustradores && ilustradores.split(',').length > 1) {
         infobox += `|ilustrador=diversos`;
     }
@@ -861,14 +782,12 @@ function gerarInformacoesProduto(temaGlobal) {
         produto += `\n${descProduto}`;
     }
 
-    // Get all banks
     const bancos = document.querySelectorAll('.banco-card');
     if (bancos.length === 0) {
         produto += '\n\n===<u>Bancos de voz</u>===\n<tabber>\n</tabber>';
         return produto;
     }
 
-    // Group banks by platform and category
     const bancosPorPlataforma = {};
 
     bancos.forEach(banco => {
@@ -887,7 +806,6 @@ function gerarInformacoesProduto(temaGlobal) {
 
     produto += '\n\n===<u>Bancos de voz</u>===';
 
-    // Generate for each platform
     for (const plataforma in bancosPorPlataforma) {
         const categorias = bancosPorPlataforma[plataforma];
 
@@ -895,7 +813,6 @@ function gerarInformacoesProduto(temaGlobal) {
             produto += `\n====${plataforma}====`;
         }
 
-        // Standard banks
         if (categorias.padrao.length > 0) {
             produto += '\n====Bancos de voz padrões====\n<tabber>';
             categorias.padrao.forEach(banco => {
@@ -904,7 +821,6 @@ function gerarInformacoesProduto(temaGlobal) {
             produto += '\n</tabber>';
         }
 
-        // Additional banks
         if (categorias.adicional.length > 0) {
             produto += '\n\n====Bancos de voz adicionais====\n<tabber>';
             categorias.adicional.forEach(banco => {
@@ -964,7 +880,7 @@ function gerarTermosUso() {
 
 function gerarExemplosUso(temaGlobal) {
     const exemplos = document.querySelectorAll('.exemplo-card');
-    if (exemplos.length === 0) return '';
+    if (examples.length === 0) return '';
 
     let usos = '\n\n\n==Exemplos de uso==';
 
@@ -994,7 +910,6 @@ function gerarExemplosUso(temaGlobal) {
         if (produtor) usos += `\n  |producer=${produtor}`;
         if (descricao) usos += `\n  |description=${descricao}`;
 
-        // Links
         let links = [];
         if (yt) links.push(`{{external|yt-ico|${yt}|Oficial}}`);
         if (nn) links.push(`{{external|nn-ico|${nn}|Oficial}}`);
@@ -1147,13 +1062,11 @@ function gerarLinksExternos() {
 function gerarCategorias() {
     let categorias = '\n\n\n';
 
-    // Get checked categories
     const checkboxes = document.querySelectorAll('.categorias-grid input[type="checkbox"]:checked');
     checkboxes.forEach(cb => {
         categorias += `[[Categoria:${cb.value}]]\n`;
     });
 
-    // Creator category
     const criadorCat = document.getElementById('categoriaCriador').value.trim();
     if (criadorCat) {
         categorias += `[[Categoria:${criadorCat}]]\n`;
@@ -1161,8 +1074,6 @@ function gerarCategorias() {
 
     return categorias;
 }
-
-// ===== Copy & Clear Functions =====
 
 function copiarCodigo() {
     const codigo = document.getElementById('codigoOutput').value;
@@ -1183,22 +1094,18 @@ function copiarCodigo() {
 function limparTudo() {
     if (!confirm('Tem certeza que deseja limpar todos os campos?')) return;
 
-    // Clear all inputs
     document.querySelectorAll('input[type="text"], textarea').forEach(el => {
         el.value = '';
     });
 
-    // Reset selects
     document.querySelectorAll('select').forEach(el => {
         el.selectedIndex = 0;
     });
 
-    // Uncheck all checkboxes
     document.querySelectorAll('input[type="checkbox"]').forEach(el => {
         el.checked = false;
     });
 
-    // Clear dynamic containers
     document.getElementById('bancosContainer').innerHTML = '';
     document.getElementById('exemplosContainer').innerHTML = '';
     document.getElementById('galeriaOficialContainer').innerHTML = '';
@@ -1209,18 +1116,14 @@ function limparTudo() {
     document.getElementById('curiosidadesContainer').innerHTML = '';
     document.getElementById('linksExternosContainer').innerHTML = '';
 
-    // Reset counters
     bancoCounter = 0;
     exemploCounter = 0;
 
-    // Reset output
     document.getElementById('codigoOutput').value = '';
 
     showToast('Campos limpos!');
 }
 
-// ===== Initialization =====
 document.addEventListener('DOMContentLoaded', () => {
-    // Focus on first field
     document.getElementById('nome').focus();
 });
