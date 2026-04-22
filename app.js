@@ -1,18 +1,34 @@
 // ===== Wiki Page Generator - Vocal Synth Brasil =====
-// Version 2.0 - Com importação, preview em tempo real e edição direta
+// Version 3.0 - Premium Polish "Midnight Synth"
 
 // ===== Sound Effects =====
-const clickSound = new Audio('click.mp3');
+// Only use save.mp3 as it's the only one confirmed in files
 const saveSound = new Audio('save.mp3');
-
-function playClick() {
-    clickSound.currentTime = 0;
-    clickSound.play().catch(() => { });
-}
 
 function playSave() {
     saveSound.currentTime = 0;
     saveSound.play().catch(() => { });
+}
+
+// ===== Toggle Tutorial Panel =====
+function toggleTutorial() {
+    const panel = document.getElementById('tutorialPanel');
+    panel.classList.toggle('show');
+}
+
+// ===== Image Modal (Lightbox) =====
+function openModal(src) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modalImg.src = src;
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden'; // Prevent scroll
+}
+
+function closeModal() {
+    const modal = document.getElementById('imageModal');
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto'; // Restore scroll
 }
 
 // ===== Code Theme Toggle =====
@@ -26,60 +42,28 @@ function toggleCodeTheme() {
     outputContent.classList.toggle('light-theme', isLightTheme);
 
     // Toggle icon
-    if (isLightTheme) {
-        themeBtn.className = 'fi fi-rr-moon';
-    } else {
-        themeBtn.className = 'fi fi-rr-sun';
-    }
-
-    playClick();
+    themeBtn.className = isLightTheme ? 'fi fi-rr-moon' : 'fi fi-rr-sun';
 }
 
-// ===== Dark Mode Toggle =====
-let isDarkMode = localStorage.getItem('darkMode') === 'true';
+// ===== Dark Mode - Permanent Default =====
+document.documentElement.classList.remove('light-mode');
+localStorage.setItem('darkMode', 'true');
 
-function toggleDarkMode() {
-    isDarkMode = !isDarkMode;
-    document.documentElement.classList.toggle('dark-mode', isDarkMode);
-
-    // Update icon
-    const darkModeBtn = document.querySelector('.btn-dark-mode i');
-    if (isDarkMode) {
-        darkModeBtn.className = 'fi fi-rr-sun';
-    } else {
-        darkModeBtn.className = 'fi fi-rr-moon';
-    }
-
-    // Save preference
-    localStorage.setItem('darkMode', isDarkMode);
-
-    playClick();
-}
-
-// Initialize dark mode from saved preference
-if (isDarkMode) {
-    document.documentElement.classList.add('dark-mode');
-    document.addEventListener('DOMContentLoaded', () => {
-        const darkModeBtn = document.querySelector('.btn-dark-mode i');
-        if (darkModeBtn) darkModeBtn.className = 'fi fi-rr-sun';
-    });
-}
-
-// ===== Tab Navigation =====
+// ===== Tab Navigation - Snap Instant =====
 document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
-        // Play click sound
-        playClick();
+        const currentActive = document.querySelector('.tab.active');
+        if (currentActive === tab) return;
 
         // Remove active from all tabs
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
 
-        // Hide all sections
-        document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-
-        // Show target section
+        // Instant switch sections
         const targetId = tab.dataset.tab;
+        document.querySelectorAll('.form-section').forEach(s => {
+            s.classList.remove('active');
+        });
         document.getElementById(targetId).classList.add('active');
     });
 });
@@ -87,9 +71,10 @@ document.querySelectorAll('.tab').forEach(tab => {
 // ===== Toast Notification =====
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.className = 'toast ' + type;
-    toast.classList.add('show');
+    const icon = type === 'success' ? 'fi-rr-check' : 'fi-rr-triangle-warning';
+
+    toast.innerHTML = `<i class="fi ${icon}"></i> <span>${message}</span>`;
+    toast.className = `toast ${type} show`;
 
     setTimeout(() => {
         toast.classList.remove('show');
@@ -153,10 +138,11 @@ async function importarPagina() {
         document.getElementById('codigoOutput').value = content;
 
         playSave();
-        showToast('Página importada! Você pode editar o código diretamente.', 'success');
-
-        // Optional: try to parse and fill forms
-        // preencherFormularios(content);
+        
+        // Parse and fill forms
+        preencherFormularios(content);
+        
+        showToast('Página importada e campos preenchidos!', 'success');
 
     } catch (error) {
         console.error('Erro ao importar:', error);
@@ -164,6 +150,91 @@ async function importarPagina() {
     }
 
     showLoading(false);
+}
+
+// ===== Parser: Wiki Content to Form Fields =====
+function clearExistingItems() {
+    // Clear images
+    document.getElementById('imagensContainer').innerHTML = '';
+    // Clear voice banks
+    document.getElementById('bancosContainer').innerHTML = '';
+    bancoCounter = 0;
+    // Clear examples
+    document.getElementById('exemplosContainer').innerHTML = '';
+    exemploCounter = 0;
+}
+
+function preencherFormularios(content) {
+    if (!content) return;
+
+    clearExistingItems();
+
+    // 1. Basic Infobox Mapping (using regex for standard wiki keys)
+    const extract = (key) => {
+        const regex = new RegExp(`\\|${key}\\s*=\\s*([^\\|\\}\\n]+)`, 'i');
+        const match = content.match(regex);
+        return match ? match[1].trim() : '';
+    };
+
+    // Name and Japanese Name
+    const rawName = extract('name');
+    if (rawName) {
+        const parts = rawName.split(/<br\s*\/?>|<small>/i);
+        document.getElementById('nome').value = parts[0].trim();
+        if (parts.length > 1) {
+            document.getElementById('nomeJapones').value = parts[1].replace(/<\/small>/i, '').trim();
+        }
+    }
+
+    // Direct Mapping
+    const mapping = {
+        'gênero': 'genero',
+        'idade': 'idade',
+        'altura': 'altura',
+        'peso': 'peso',
+        'aniversário': 'aniversario',
+        'lançamento_inicial': 'lancamento',
+        'criador': 'criador',
+        'voicer': 'voicer',
+        'ilustradores': 'ilustrador',
+        'grupo': 'grupo',
+        'código': 'codigoId',
+        'status': 'status',
+        'website': 'siteOficial',
+        'theme': 'corTema'
+    };
+
+    for (const [wikiKey, fieldId] of Object.entries(mapping)) {
+        const val = extract(wikiKey);
+        const element = document.getElementById(fieldId);
+        if (element && val) {
+            element.value = val;
+        }
+    }
+
+    // 2. Gallery Parsing (inside Infobox)
+    const galleryMatch = content.match(/image\s*=\s*<gallery>([\s\S]*?)<\/gallery>/i);
+    if (galleryMatch) {
+        const lines = galleryMatch[1].split('\n');
+        lines.forEach(line => {
+            const parts = line.trim().split('|');
+            if (parts[0] && parts[0].includes('.')) {
+                // It looks like an image file
+                const container = document.getElementById('imagensContainer');
+                const item = document.createElement('div');
+                item.className = 'imagem-item';
+                item.innerHTML = `
+                    <input type="text" class="imagem-arquivo" value="${parts[0].trim()}" oninput="atualizarPreview()">
+                    <input type="text" class="imagem-label" value="${parts[1] ? parts[1].trim() : ''}" oninput="atualizarPreview()">
+                    <button class="btn-icon btn-remove" onclick="removerItem(this)" title="Remover"><i class="fi fi-rr-cross-small"></i></button>
+                `;
+                container.appendChild(item);
+            }
+        });
+    }
+
+    // Ensure preview is updated
+    atualizarPreview();
 }
 
 // ===== Dynamic Item Management =====
@@ -217,7 +288,7 @@ function adicionarBanco() {
             <span class="banco-card-title"><i class="fi fi-rr-music-alt"></i> Banco de Voz #${bancoCounter}</span>
             <button class="btn-icon btn-remove" onclick="removerItem(this)" title="Remover"><i class="fi fi-rr-cross-small"></i></button>
         </div>
-        
+
         <div class="form-row">
             <div class="form-group">
                 <label><i class="fi fi-rr-text"></i> Nome do Banco *</label>
@@ -234,7 +305,7 @@ function adicionarBanco() {
                 </select>
             </div>
         </div>
-        
+
         <div class="form-row">
             <div class="form-group">
                 <label><i class="fi fi-rr-folder"></i> Categoria</label>
@@ -256,7 +327,7 @@ function adicionarBanco() {
                 </select>
             </div>
         </div>
-        
+
         <div class="form-row">
             <div class="form-group">
                 <label><i class="fi fi-rr-guitar"></i> Gênero Musical</label>
@@ -267,27 +338,27 @@ function adicionarBanco() {
                 <input type="text" class="banco-tempo" placeholder="Ex: 80~220 BPM" oninput="atualizarPreview()">
             </div>
         </div>
-        
+
         <div class="form-group">
             <label><i class="fi fi-rr-signal-alt-2"></i> Range Vocal</label>
             <input type="text" class="banco-range" placeholder="Ex: B2~C#5" oninput="atualizarPreview()">
         </div>
-        
+
         <div class="form-group">
             <label><i class="fi fi-rr-document"></i> Detalhes *</label>
             <textarea class="banco-detalhes" rows="3" placeholder="Descrição geral do banco de voz..." oninput="atualizarPreview()"></textarea>
         </div>
-        
+
         <div class="form-group">
             <label><i class="fi fi-rr-settings"></i> Fonética e Recomendações</label>
             <textarea class="banco-fonetica" rows="4" placeholder="Formato de gravação, tons, recomendações de resampler/flags..." oninput="atualizarPreview()"></textarea>
         </div>
-        
+
         <div class="form-group">
             <label><i class="fi fi-rr-triangle-warning"></i> Problemas Conhecidos</label>
             <textarea class="banco-issues" rows="2" placeholder="Bugs ou problemas conhecidos (opcional)..." oninput="atualizarPreview()"></textarea>
         </div>
-        
+
         <div class="form-group">
             <label><i class="fi fi-rr-waveform-path"></i> Sample (arquivo de áudio)</label>
             <input type="text" class="banco-sample" placeholder="Ex: NOME-banco.ogg" oninput="atualizarPreview()">
@@ -310,7 +381,7 @@ function adicionarExemplo() {
             <span class="exemplo-card-title"><i class="fi fi-rr-music"></i> Música #${exemploCounter}</span>
             <button class="btn-icon btn-remove" onclick="removerItem(this)" title="Remover"><i class="fi fi-rr-cross-small"></i></button>
         </div>
-        
+
         <div class="form-row">
             <div class="form-group">
                 <label><i class="fi fi-rr-picture"></i> Thumbnail</label>
@@ -325,7 +396,7 @@ function adicionarExemplo() {
                 </select>
             </div>
         </div>
-        
+
         <div class="form-row">
             <div class="form-group">
                 <label><i class="fi fi-rr-text"></i> Título (romanizado) *</label>
@@ -336,7 +407,7 @@ function adicionarExemplo() {
                 <input type="text" class="exemplo-titulo-orig" placeholder="Ex: ダーリン" oninput="atualizarPreview()">
             </div>
         </div>
-        
+
         <div class="form-row">
             <div class="form-group">
                 <label><i class="fi fi-rr-microphone"></i> Cantor(es) *</label>
@@ -347,12 +418,12 @@ function adicionarExemplo() {
                 <input type="text" class="exemplo-produtor" placeholder="Nome do produtor" oninput="atualizarPreview()">
             </div>
         </div>
-        
+
         <div class="form-group">
             <label><i class="fi fi-rr-comment-alt"></i> Descrição</label>
             <input type="text" class="exemplo-descricao" placeholder="Ex: Lançamento do banco -basic-" oninput="atualizarPreview()">
         </div>
-        
+
         <div class="form-group">
             <label><i class="fi fi-rr-link-alt"></i> Links</label>
             <div class="form-row">
@@ -453,11 +524,59 @@ function adicionarLinkExterno() {
 let previewTimeout = null;
 
 function atualizarPreview() {
+    // Atualiza o design principal
+    atualizarDesignPreview();
+
     // Debounce para não gerar código a cada tecla
     clearTimeout(previewTimeout);
     previewTimeout = setTimeout(() => {
         gerarCodigo(false); // false = não mostrar toast
     }, 300);
+}
+
+function atualizarDesignPreview() {
+    const firstImgInput = document.querySelector('.imagem-arquivo');
+    const designBody = document.getElementById('designBody');
+    
+    if (!firstImgInput || !designBody) return;
+
+    const fileName = firstImgInput.value.trim();
+    
+    if (fileName && fileName.length > 3) {
+        // Construct Fandom Direct URL
+        const imgUrl = `https://vsynthbr.fandom.com/pt-br/wiki/Especial:Redirect/file/${encodeURIComponent(fileName)}`;
+        
+        // Show loading or just try to set the image
+        designBody.innerHTML = `
+            <img src="${imgUrl}" alt="Design Principal" 
+                 onerror="handleDesignError(this)" 
+                 onload="handleDesignLoad(this)">
+            <div class="design-label-overlay">${fileName}</div>
+        `;
+    } else {
+        designBody.innerHTML = `
+            <div class="design-placeholder">
+                <i class="fi fi-rr-image"></i>
+                <span>Aguardando nome do arquivo...</span>
+            </div>
+        `;
+    }
+}
+
+function handleDesignError(img) {
+    const designBody = document.getElementById('designBody');
+    designBody.innerHTML = `
+        <div class="design-placeholder">
+            <i class="fi fi-rr-search-alt"></i>
+            <span style="color: var(--error)">Arquivo não encontrado na wiki ou carregando...</span>
+            <small style="font-size: 0.7rem; opacity: 0.7">${img.src.split('/').pop()}</small>
+        </div>
+    `;
+}
+
+function handleDesignLoad(img) {
+    // Image loaded successfully
+    img.style.display = 'block';
 }
 
 // ===== Sincronizar do Editor =====
@@ -1055,7 +1174,7 @@ function copiarCodigo() {
 
     navigator.clipboard.writeText(codigo).then(() => {
         playSave();
-        showToast('Código copiado! 📋');
+        showToast('Código copiado!');
     }).catch(() => {
         showToast('Erro ao copiar', 'error');
     });
@@ -1097,7 +1216,7 @@ function limparTudo() {
     // Reset output
     document.getElementById('codigoOutput').value = '';
 
-    showToast('Campos limpos! 🧹');
+    showToast('Campos limpos!');
 }
 
 // ===== Initialization =====
