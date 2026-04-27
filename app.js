@@ -115,11 +115,14 @@ async function importarPagina() {
 
         const content = pages[pageId].revisions[0]['*'];
 
-        document.getElementById('codigoOutput').value = content;
-
         playSave();
         
         preencherFormularios(content);
+
+        // Restore the original wiki code after form filling
+        // (preencherFormularios triggers atualizarPreview which would overwrite it)
+        document.getElementById('codigoOutput').value = content;
+        clearTimeout(previewTimeout);
         
         showToast('Página importada e campos preenchidos!', 'success');
 
@@ -168,12 +171,12 @@ function preencherFormularios(content) {
         'lançamento_inicial': 'lancamento',
         'criador': 'criador',
         'voicer': 'voicer',
-        'ilustradores': 'ilustrador',
+        'ilustradores': 'ilustradores',
         'grupo': 'grupo',
-        'código': 'codigoId',
+        'código': 'codigo',
         'status': 'status',
-        'website': 'siteOficial',
-        'theme': 'corTema'
+        'website': 'website',
+        'theme': 'tema'
     };
 
     for (const [wikiKey, fieldId] of Object.entries(mapping)) {
@@ -655,6 +658,8 @@ function gerarInfobox(tema) {
     const nomeJapones = document.getElementById('nomeJapones').value;
     if (nomeJapones) {
         infobox += `  |name=${nome}<br><small>${nomeJapones}</small>\n`;
+    } else if (nome) {
+        infobox += `  |name=${nome}\n`;
     }
 
     const imagens = document.querySelectorAll('#imagensContainer .imagem-item');
@@ -880,7 +885,7 @@ function gerarTermosUso() {
 
 function gerarExemplosUso(temaGlobal) {
     const exemplos = document.querySelectorAll('.exemplo-card');
-    if (examples.length === 0) return '';
+    if (exemplos.length === 0) return '';
 
     let usos = '\n\n\n==Exemplos de uso==';
 
